@@ -1,0 +1,36 @@
+apply plugin: 'idea'
+apply plugin: 'java'
+apply plugin: 'application'
+
+/* define main class */
+
+mainClassName = 'com.tacit.mycat.EntryPoint'
+
+/* Provide repositories */
+
+repositories {
+    mavenCentral()
+}
+
+/* provide dependencies */
+
+dependencies {
+    compile 'com.google.code.gson:gson:2.3.1'
+    compile 'com.sparkjava:spark-core:2.1'
+    compile 'org.apache.httpcomponents:httpclient:4.4'
+}
+
+/* build to a JAR */
+
+jar {
+    baseName = 'json-xml-etl'
+    version =  '0.1.0'
+}
+
+
+
+/* build a gradle wrapper */
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.3'
+}
