@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -36,10 +37,13 @@ public class EntryPointConcurrent {
         List<String> urls = filters.map(EntryPointConcurrent::buildUrl).collect(Collectors.toList());
 
         // build an executor for each url
-        Executor executor = getExecutor(urls.size());
+        ExecutorService executor = getExecutor(urls.size());
 
         // make concurrent requests for all those urls
         Stream<TagItemsResponse> taggedItems = requestTaggedItems(urls, executor);
+
+        // show down the pool (otherwise threads may be leaked when executor drops out of scope)
+        executor.shutdown();
 
         // create a stream of elements for each of those tagged items
         Stream<String> elements = taggedItems.map(EntryPointConcurrent::buildElementStream).flatMap(x -> x);
@@ -64,13 +68,13 @@ public class EntryPointConcurrent {
         return Arrays.asList(tagItemsResponse.items).stream().map(EntryPointConcurrent::buildElement);
     }
 
-    private static Stream<TagItemsResponse> requestTaggedItems(List<String> urls, Executor executor) {
+    private static Stream<TagItemsResponse> requestTaggedItems(List<String> urls, ExecutorService executor) {
         return urls.stream()
                 .map(url -> CompletableFuture.supplyAsync(() -> callUrl(url), executor))
                 .map(CompletableFuture::join);
     }
 
-    private static Executor getExecutor(int size) {
+    private static ExecutorService getExecutor(int size) {
 
         return Executors.newFixedThreadPool(Math.min(size * 2, 100), runnable -> {
             Thread thread = new Thread(runnable);
