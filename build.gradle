@@ -3,28 +3,19 @@ apply plugin: 'java'
 apply plugin: 'application'
 apply plugin: 'war'
 
-/* google app engine integration */
-/* https://github.com/GoogleCloudPlatform/gradle-appengine-plugin */
-
-apply plugin: 'appengine'
-
 /* define main class */
 
-mainClassName = 'com.tacit.mycat.EntryPoint'
+mainClassName = 'com.tacit.mycat.EntryPointConcurrent'
 
-/* include google integration JAR in your classpath */
+/* build repositories */
 
 buildscript {
   repositories {
     mavenCentral()
   }
-
-  dependencies {
-    classpath 'com.google.appengine:gradle-appengine-plugin:1.9.30'
-  }
 }
 
-/* Provide repositories */
+/* Runtime Provide repositories */
 
 repositories {
     mavenCentral()
@@ -45,43 +36,8 @@ jar {
     version =  '0.1.0'
 }
 
-/*
- * Define WAR properties
- */
-
-war {
-    baseName = 'json-flicker-images'
-}
-
-
 /* build a gradle wrapper */
 
 task wrapper(type: Wrapper) {
     gradleVersion = '2.3'
-}
-
-/ * App engine integration configuration */
-
-appengine {
-  httpPort = 8085
-  downloadSdk = true
-  warDir = file('src/main/webapp')
-
-  dependencies {
-    appengineSdk 'com.google.appengine:appengine-java-sdk:1.9.30'
-  }
-
-  appcfg {
-    email = 'phemmings@tacitknowledge.com'
-      passIn = true
-
-      logs {
-        severity = 1
-          outputFile = file('json-flicker-images.txt')
-      }
-
-    app {
-      id = 'json-flicker-images'
-    }
-  }
 }
